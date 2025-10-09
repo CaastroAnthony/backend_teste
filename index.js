@@ -10,4 +10,6 @@ app.use(cors())//o cors serve pra evitar conflitos rodando localmente
 
 app.use("/", userRoutes)
 
-app.listen(8800)
+app.listen(8800, () => {
+    console.log("✅ Servidor rodando na porta 8800");
+  });

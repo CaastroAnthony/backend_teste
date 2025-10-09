@@ -1,14 +1,34 @@
 import { db } from "../db.js";
 
-export const getUsers = (_, res) => {
-    const q = "SELECT * FROM usuarios";
+// Cadastrar um novo usuário
+export const registerUser = (req, res) => {
+  const { nome, email, senha } = req.body;
 
-    db.query(q, (err, data) => {
-        if (err) return res.json(err);
-
-    return res.status(200).json(data);
-    });
+  const q = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
+  db.query(q, [nome, email, senha], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json("Erro ao cadastrar o usuário");
+    }
+    return res.status(200).json("Usuário cadastrado com sucesso");
+  });
 };
 
+// Fazer login
+export const loginUser = (req, res) => {
+  const { email, senha } = req.body;
 
+  const q = "SELECT * FROM usuarios WHERE email = ? AND senha = ?";
+  db.query(q, [email, senha], (err, data) => {
+    if (err) return res.status(500).json(err);
 
+    if (data.length > 0) {
+      return res.status(200).json({
+        mensagem: "Login realizado com sucesso!",
+        usuario: data[0],
+      });
+    } else {
+      return res.status(401).json("Email ou senha incorretos!");
+    }
+  });
+};
