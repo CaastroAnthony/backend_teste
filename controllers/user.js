@@ -4,7 +4,7 @@ import { db } from "../db.js";
 export const registerUser = (req, res) => {
   const { nome, email, senha } = req.body;
 
-  // 1️⃣ Verifica se o email já existe
+  // Verifica se o email já existe
   const qCheck = "SELECT * FROM usuarios WHERE email = ?";
   db.query(qCheck, [email], (err, data) => {
     if (err) return res.status(500).json("Erro ao verificar usuário");
@@ -13,7 +13,7 @@ export const registerUser = (req, res) => {
       // Email já cadastrado
       return res.status(400).json("Este email já está cadastrado!");
     } else {
-      // 2️⃣ Se não existir, cadastra
+      // Se não existir, cadastra
       const qInsert = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
       db.query(qInsert, [nome, email, senha], (err) => {
         if (err) return res.status(500).json("Erro ao cadastrar usuário");
