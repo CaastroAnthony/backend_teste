@@ -2,21 +2,24 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - EstudoTech</title>
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <h1>Crie sua conta</h1>
-
-  <form id="formCadastro">
-    <input type="text" name="nome" placeholder="Seu nome" required><br>
-    <input type="email" name="email" placeholder="Seu email" required><br>
-    <input type="password" name="senha" placeholder="Sua senha" required><br>
-    <button type="submit">Cadastrar</button>
-  </form>
-
-  <p id="mensagemCadastro"></p>
-
-  <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+  <main class="auth-main">
+    <div class="auth-box">
+      <h1>Crie sua conta</h1>
+      <form id="formCadastro" class="auth-form">
+        <input type="text" name="nome" placeholder="Seu nome" required>
+        <input type="email" name="email" placeholder="Seu email" required>
+        <input type="password" name="senha" placeholder="Sua senha" required>
+        <button type="submit" class="btn">Cadastrar</button>
+      </form>
+      <p class="mensagem" id="mensagemCadastro"></p>
+      <p class="link-auth">Já tem uma conta? <a href="login.html">Faça login</a></p>
+    </div>
+  </main>
 
   <script>
     document.getElementById('formCadastro').addEventListener('submit', async (e) => {
@@ -31,8 +34,7 @@
         });
 
         const msg = await res.json();
-        const p = document.getElementById('mensagemCadastro');
-        p.textContent = msg;
+        document.getElementById('mensagemCadastro').textContent = msg.mensagem || msg;
       } catch {
         document.getElementById('mensagemCadastro').textContent = "Erro de conexão!";
       }

@@ -2,20 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - EstudoTech</title>
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-  <h1>Login</h1>
-
-  <form id="formLogin">
-    <input type="email" name="email" placeholder="Seu email" required><br>
-    <input type="password" name="senha" placeholder="Sua senha" required><br>
-    <button type="submit">Entrar</button>
-  </form>
-
-  <p id="mensagemLogin"></p>
-
-  <p>Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
+  <main class="auth-main">
+    <div class="auth-box">
+      <h1>Login</h1>
+      <form id="formLogin" class="auth-form">
+        <input type="email" name="email" placeholder="Seu email" required>
+        <input type="password" name="senha" placeholder="Sua senha" required>
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+      <p class="mensagem" id="mensagemLogin"></p>
+      <p class="link-auth">Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
+    </div>
+  </main>
 
   <script>
     document.getElementById('formLogin').addEventListener('submit', async (e) => {
@@ -34,11 +37,10 @@
 
         if (res.status === 200) {
           p.textContent = result.mensagem;
-          // Guarda nome do usuário e redireciona
           localStorage.setItem("usuario", JSON.stringify(result.usuario));
-          setTimeout(() => window.location.href = "dashboard.html", 1000);//aqui redireciona pra rota que eu quero
+          setTimeout(() => window.location.href = "dashboard.html", 1000);
         } else {
-          p.textContent = result;
+          p.textContent = result.mensagem || result;
         }
       } catch {
         document.getElementById('mensagemLogin').textContent = "Erro de conexão!";

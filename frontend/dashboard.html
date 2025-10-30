@@ -1,11 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - EstudoTech</title>
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    
+  <header>
+    <div id="title">
+      <h1>EstudoTech</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#" id="logout">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <h2>Bem-vindo, <span id="nomeUsuario">Usuário</span>!</h2>
+      <p>Explore seus conteúdos e resumos para acelerar seus estudos.</p>
+    </section>
+
+    <section class="materias">
+      <h3>Front-End</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>HTML</h4>
+          <p>Resumo dos principais conceitos de HTML, tags, estrutura e boas práticas.</p>
+        </div>
+        <div class="card">
+          <h4>CSS</h4>
+          <p>Resumo de CSS: seletores, propriedades, flexbox, grid e responsividade.</p>
+        </div>
+        <div class="card">
+          <h4>JavaScript</h4>
+          <p>Resumo de JS: variáveis, funções, DOM e eventos para interação com páginas.</p>
+        </div>
+      </div>
+
+      <h3>Back-End</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Node.js</h4>
+          <p>Conceitos de servidor, rotas, API REST e manipulação de dados.</p>
+        </div>
+        <div class="card">
+          <h4>Banco de Dados</h4>
+          <p>Integração com banco de dados, consultas, CRUD e segurança.</p>
+        </div>
+      </div>
+
+      <h3>Modelagem de Banco de Dados</h3>
+      <div class="cards">
+        <div class="card">
+          <h4>Modelagem Relacional</h4>
+          <p>Entidades, relacionamentos, chave primária e estrangeira.</p>
+        </div>
+        <div class="card">
+          <h4>Diagramas</h4>
+          <p>Como criar diagramas ER e organizar dados de forma eficiente.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+
+  </footer>
+
+  <script>
+    // Recupera usuário do localStorage
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if(usuario && usuario.nome) {
+      document.getElementById("nomeUsuario").textContent = usuario.nome;
+    }
+
+    // Logout
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("usuario");
+      window.location.href = "login.html";
+    });
+  </script>
 </body>
 </html>
