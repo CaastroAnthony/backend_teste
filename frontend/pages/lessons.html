@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lições</title>
+  <link rel="stylesheet" href="../styles/style.css" />
+  <style>
+    main { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .breadcrumb { color: #d1d1e0; margin-bottom: 20px; font-size: 14px; }
+    .breadcrumb a { color: #a855f7; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-size: 32px; color: #a855f7; margin-bottom: 10px; }
+    h2 { font-size: 22px; color: #fff; margin-top: 28px; margin-bottom: 8px; }
+    p, li, code { color: #e8e8ff; line-height: 1.8; font-size: 16px; }
+    .section { background: rgba(0,0,0,0.4); border-radius: 16px; padding: 22px; box-shadow: 0 0 20px rgba(168,85,247,0.35); margin-top: 18px; }
+    ul, ol { padding-left: 18px; }
+    pre { background: rgba(0,0,0,0.55); padding: 14px; border-radius: 12px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="title"><h1>EstudoTech</h1></div>
+    <nav>
+      <ul>
+        <li><a href="../dashboard.html">Dashboard</a></li>
+        <li><a href="#" id="logout">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div class="breadcrumb"><a href="../dashboard.html">Dashboard</a> / <span id="bcSubject"></span> / <span id="bcLesson"></span></div>
+    <h1 id="pageTitle">Lições</h1>
+    <div id="content"></div>
+    <div class="actions" style="margin-top:20px; display:flex; gap:10px;">
+      <a class="btn" id="backBtn" href="../dashboard.html">Voltar</a>
+    </div>
+  </main>
+
+  <script>
+    function unslugify(s){ return (s||'').replace(/-/g,' ').replace(/\b\w/g, c=>c.toUpperCase()); }
+    function getParams(){ const u=new URL(window.location.href); return { subject:(u.searchParams.get('subject')||'').toLowerCase(), lesson:(u.searchParams.get('lesson')||'').toLowerCase() }; }
+
+    const lessons = {
+      'front-end': {
+        'html': {
+          title: 'HTML',
+          sections: [
+            { h: 'O que é', t: 'HTML é a linguagem de marcação que define a estrutura de páginas web usando elementos e atributos.' },
+            { h: 'Para que serve', t: 'Serve para organizar conteúdo (títulos, parágrafos, imagens, links, listas e formulários), fornecendo semântica e acessibilidade.' },
+            { h: 'Como usar', t: 'Crie um arquivo .html, defina <!DOCTYPE html>, <html>, <head> e <body>. Use tags semânticas para estruturar o conteúdo.' },
+            { h: 'Passo a passo', list: [
+              'Crie index.html com a estrutura base.',
+              'No <head>, defina <title> e meta tags.',
+              'No <body>, crie seções com <header>, <main>, <section> e <footer>.',
+              'Inclua links (<a>) e imagens (<img alt=...>).'
+            ]},
+            { h: 'Exemplos', code: `<!DOCTYPE html>\n<html>\n  <head>\n    <meta charset="UTF-8" />\n    <title>Meu Site</title>\n  </head>\n  <body>\n    <header><h1>Título</h1></header>\n    <main>\n      <section><h2>Seção</h2><p>Texto.</p></section>\n      <a href="https://developer.mozilla.org">MDN</a>\n    </main>\n    <footer>Rodapé</footer>\n  </body>\n</html>` }
+          ]
+        },
+        'css': {
+          title: 'CSS',
+          sections: [
+            { h: 'O que é', t: 'CSS define estilos visuais (cores, tipografia, layout, animações) aplicados ao HTML.' },
+            { h: 'Para que serve', t: 'Separa apresentação da estrutura, facilitando manutenção e responsividade.' },
+            { h: 'Como usar', t: 'Crie um arquivo .css e referencie no <head>. Use seletores de classe, id e tag.' },
+            { h: 'Passo a passo', list: [
+              'Crie styles.css e conecte ao HTML.',
+              'Defina tipografia e paleta de cores.',
+              'Crie layout com Flexbox ou Grid.',
+              'Adapte com media queries.'
+            ]},
+            { h: 'Exemplos', code: `/* styles.css */\nbody{ font-family: system-ui; color:#e8e8ff; }\n.container{ display:flex; gap:12px; }\n@media (max-width:600px){ .container{ flex-direction:column; } }` }
+          ]
+        },
+        'javascript': {
+          title: 'JavaScript',
+          sections: [
+            { h: 'O que é', t: 'Linguagem que torna páginas interativas: DOM, eventos, rede, armazenamento.' },
+            { h: 'Para que serve', t: 'Adicionar comportamento dinâmico, consumir APIs, validar formulários e muito mais.' },
+            { h: 'Como usar', t: 'Inclua <script> ou arquivos .js. Manipule o DOM com querySelector e adicione eventos.' },
+            { h: 'Passo a passo', list: [
+              'Capture elementos com document.querySelector.',
+              'Adicione ouvintes de evento (click, input).',
+              'Atualize o DOM conforme interações.',
+              'Busque dados com fetch e renderize na tela.'
+            ]},
+            { h: 'Exemplos', code: `const btn=document.querySelector('#ok');\nbtn.addEventListener('click',()=>{\n  document.querySelector('#msg').textContent='Olá!';\n});` }
+          ]
+        },
+        'react': {
+          title: 'React',
+          sections: [
+            { h: 'O que é', t: 'Biblioteca para construir interfaces com componentes e estado.' },
+            { h: 'Para que serve', t: 'Facilita criação de UIs escaláveis e reativas.' },
+            { h: 'Como usar', t: 'Use create-react-app/Vite ou importe via script. Crie componentes funcionais.' },
+            { h: 'Passo a passo', list: [
+              'Crie um componente funcional.',
+              'Passe dados via props.',
+              'Gerencie estado com useState.',
+              'Busque dados com useEffect.'
+            ]},
+            { h: 'Exemplos', code: `function Hello({name}){\n  const [count,setCount]=React.useState(0);\n  return (<div>\n    <p>Olá, {name}! {count}</p>\n    <button onClick={()=>setCount(count+1)}>+1</button>\n  </div>);\n}` }
+          ]
+        },
+        'responsividade': {
+          title: 'Responsividade',
+          sections: [
+            { h: 'O que é', t: 'Prática de adaptar interfaces a diferentes tamanhos e densidades de tela.' },
+            { h: 'Para que serve', t: 'Garantir usabilidade e acesso em dispositivos variados.' },
+            { h: 'Como usar', t: 'Media queries, unidades relativas, imagens fluidas, layouts flex/grid.' },
+            { h: 'Passo a passo', list: [
+              'Defina breakpoints com base no conteúdo.',
+              'Use unidades relativas (rem, %).',
+              'Reorganize colunas para pilhas em telas pequenas.',
+              'Teste em dispositivos e simuladores.'
+            ]},
+            { h: 'Exemplos', code: `/* Grid fluido */\n.grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }\n@media (max-width:700px){ .grid{ grid-template-columns: 1fr; } }` }
+          ]
+        }
+      },
+      'back-end': {
+        'node-js': {
+          title: 'Node.js',
+          sections: [
+            { h: 'O que é', t: 'Runtime JavaScript para servidor, baseado no V8 com I/O não bloqueante.' },
+            { h: 'Para que serve', t: 'Criar servidores, CLIs, automações e serviços escaláveis.' },
+            { h: 'Como usar', t: 'Instale Node, inicie com npm init, crie um servidor HTTP.' },
+            { h: 'Passo a passo', list: [
+              'npm init -y e crie index.js.',
+              'Use http.createServer e responda JSON.',
+              'Adicione scripts npm para iniciar.',
+              'Logue requisições e trate erros.'
+            ]},
+            { h: 'Exemplos', code: `const http=require('http');\nconst srv=http.createServer((req,res)=>{\n  res.setHeader('Content-Type','application/json');\n  res.end(JSON.stringify({ok:true}));\n});\nsrv.listen(3000);` }
+          ]
+        },
+        'express-js': {
+          title: 'Express.js',
+          sections: [
+            { h: 'O que é', t: 'Framework minimalista para construir APIs HTTP no Node.js.' },
+            { h: 'Para que serve', t: 'Facilitar roteamento, middlewares, validação e erros.' },
+            { h: 'Como usar', t: 'Instale express, crie app, defina rotas e middlewares.' },
+            { h: 'Passo a passo', list: [
+              'npm i express e crie app.js.',
+              'Defina rotas CRUD (/items).',
+              'Valide entrada e trate erros.',
+              'Separe camadas (controllers/services).'
+            ]},
+            { h: 'Exemplos', code: `const express=require('express');\nconst app=express();\napp.use(express.json());\napp.get('/items',(req,res)=>res.json([]));\napp.listen(3000);` }
+          ]
+        },
+        'autenticacao': {
+          title: 'Autenticação',
+          sections: [
+            { h: 'O que é', t: 'Processo de verificar identidade; base para autorização segura.' },
+            { h: 'Para que serve', t: 'Proteger recursos e dados; impor regras de acesso.' },
+            { h: 'Como usar', t: 'JWT para APIs stateless ou sessões para apps web.' },
+            { h: 'Passo a passo', list: [
+              'Implemente /signup (hash de senha).',
+              'Implemente /login (gera JWT).',
+              'Proteja rotas com middleware.',
+              'Implemente refresh token e expiração.'
+            ]},
+            { h: 'Exemplos', code: `// middleware simples (pseudo)\nfunction auth(req,res,next){ /* verifica token */ next(); }` }
+          ]
+        },
+        'banco-de-dados': {
+          title: 'Banco de Dados',
+          sections: [
+            { h: 'O que é', t: 'Sistemas para armazenamento e recuperação eficiente de dados.' },
+            { h: 'Para que serve', t: 'Persistir informações e consultá-las com performance e segurança.' },
+            { h: 'Como usar', t: 'Conecte via driver/ORM, use consultas parametrizadas, transações e migrações.' },
+            { h: 'Passo a passo', list: [
+              'Configure conexão e pool.',
+              'Crie tabelas com migrações.',
+              'Implemente CRUD com parâmetros.',
+              'Adicione índices e avalie planos.'
+            ]},
+            { h: 'Exemplos', code: `-- SQL exemplo\nCREATE TABLE items(id SERIAL PRIMARY KEY, name TEXT);\nCREATE INDEX ON items(name);` }
+          ]
+        }
+      },
+      'modelagem-de-banco-de-dados': {
+        'modelagem-relacional': {
+          title: 'Modelagem Relacional',
+          sections: [
+            { h: 'O que é', t: 'Disciplina de projetar esquemas relacionais a partir de requisitos do domínio.' },
+            { h: 'Para que serve', t: 'Garantir integridade, consistência e desempenho dos dados.' },
+            { h: 'Como usar', t: 'Defina entidades/atributos, relacionamentos e chaves; mapeie para tabelas.' },
+            { h: 'Passo a passo', list: [
+              'Levante entidades e atributos.',
+              'Defina relacionamentos e cardinalidades.',
+              'Projete chaves primárias e estrangeiras.',
+              'Transforme em tabelas e documente.'
+            ]},
+            { h: 'Exemplos', code: `Entidades: Usuario(id, nome), Pedido(id, usuario_id, total)\nRelacionamento: Usuario 1:N Pedido (FK: pedido.usuario_id -> usuario.id)` }
+          ]
+        },
+        'diagramas': {
+          title: 'Diagramas',
+          sections: [
+            { h: 'O que é', t: 'Representações visuais (ER/UML) do modelo de dados.' },
+            { h: 'Para que serve', t: 'Comunicar estrutura e regras para devs e stakeholders.' },
+            { h: 'Como usar', t: 'Escolha notação (Crow’s Foot, Chen), ferramentas e padronize símbolos.' },
+            { h: 'Passo a passo', list: [
+              'Liste entidades/relacionamentos.',
+              'Desenhe chaves e cardinalidades.',
+              'Valide com casos de uso.',
+              'Versione com o código.'
+            ]},
+            { h: 'Exemplos', t: 'Use dbdiagram.io, Draw.io ou Lucidchart para manter diagramas sincronizados ao schema.' }
+          ]
+        },
+        'normalizacao': {
+          title: 'Normalização',
+          sections: [
+            { h: 'O que é', t: 'Conjunto de formas normais para reduzir redundâncias e anomalias.' },
+            { h: 'Para que serve', t: 'Melhorar consistência e facilitar manutenção.' },
+            { h: 'Como usar', t: 'Aplique 1FN, 2FN, 3FN (e BCNF quando necessário) conforme dependências.' },
+            { h: 'Passo a passo', list: [
+              'Identifique dependências funcionais.',
+              'Remova grupos repetidos (1FN).',
+              'Elimine dependências parciais (2FN).',
+              'Elimine dependências transitivas (3FN).'
+            ]},
+            { h: 'Exemplos', t: 'Ex.: separar endereço em rua, cidade, estado; separar entidades repetidas em tabelas dedicadas.' }
+          ]
+        },
+        'indices-e-desempenho': {
+          title: 'Índices e Desempenho',
+          sections: [
+            { h: 'O que é', t: 'Técnicas de indexação e análise de planos para acelerar consultas.' },
+            { h: 'Para que serve', t: 'Otimizar leitura, controlar custos de escrita e planejar escalabilidade.' },
+            { h: 'Como usar', t: 'Crie índices seletivos, use EXPLAIN para entender planos e monitore em produção.' },
+            { h: 'Passo a passo', list: [
+              'Identifique consultas críticas.',
+              'Crie índices nas colunas de filtro/ordenação.',
+              'Avalie planos antes/depois.',
+              'Monitore impacto em escrita.'
+            ]},
+            { h: 'Exemplos', code: `EXPLAIN ANALYZE SELECT * FROM items WHERE name LIKE 'A%';` }
+          ]
+        }
+      }
+    };
+
+    const { subject, lesson } = getParams();
+    const bcSubject = document.getElementById('bcSubject');
+    const bcLesson = document.getElementById('bcLesson');
+    const titleEl = document.getElementById('pageTitle');
+    const contentEl = document.getElementById('content');
+
+    const subj = lessons[subject] || {};
+    const data = subj[lesson];
+    bcSubject.textContent = unslugify(subject || 'Assunto');
+    bcLesson.textContent = data ? data.title : unslugify(lesson || 'Lição');
+    titleEl.textContent = data ? ('Lições: ' + data.title) : 'Lições';
+
+    if(!data){
+      const p = document.createElement('p');
+      p.textContent = 'Não há lições cadastradas para esta combinação de assunto e lição.';
+      contentEl.appendChild(p);
+    } else {
+      data.sections.forEach(sec => {
+        const wrap = document.createElement('section');
+        wrap.className = 'section';
+        const h = document.createElement('h2');
+        h.textContent = sec.h;
+        wrap.appendChild(h);
+        if(sec.t){
+          const p = document.createElement('p'); p.textContent = sec.t; wrap.appendChild(p);
+        }
+        if(sec.list){
+          const ol = document.createElement('ol');
+          sec.list.forEach(item => { const li=document.createElement('li'); li.textContent=item; ol.appendChild(li); });
+          wrap.appendChild(ol);
+        }
+        if(sec.code){
+          const pre = document.createElement('pre');
+          pre.textContent = sec.code;
+          wrap.appendChild(pre);
+        }
+        contentEl.appendChild(wrap);
+      });
+    }
+
+    function goBack(){
+      if(document.referrer && window.history.length > 1){
+        window.history.back();
+      } else {
+        window.location.href = '../dashboard.html';
+      }
+    }
+
+    const logout = document.getElementById('logout');
+    if(logout){
+      logout.addEventListener('click', function(e){
+        e.preventDefault();
+        localStorage.removeItem('usuario');
+        window.location.href = '../login.html';
+      });
+    }
+    const backBtn = document.getElementById('backBtn');
+    if(backBtn){
+      backBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        goBack();
+      });
+    }
+  </script>
+</body>
+</html>

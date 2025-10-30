@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz</title>
+  <link rel="stylesheet" href="../styles/style.css" />
+  <style>
+    main { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .breadcrumb { color: #d1d1e0; margin-bottom: 20px; font-size: 14px; }
+    .breadcrumb a { color: #a855f7; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-size: 32px; color: #a855f7; margin-bottom: 10px; }
+    h2 { font-size: 20px; color: #fff; margin-top: 22px; margin-bottom: 8px; }
+    .quiz-card { background: rgba(0,0,0,0.4); border-radius: 16px; padding: 20px; box-shadow: 0 0 20px rgba(168,85,247,0.35); margin-top: 16px; }
+    .option { display:flex; align-items:center; gap:10px; color:#e8e8ff; margin:8px 0; }
+    .result { margin-top: 18px; font-weight:600; }
+    .ok { color:#86efac; }
+    .bad { color:#fda4af; }
+    .actions { display:flex; gap:10px; margin-top:20px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="title"><h1>EstudoTech</h1></div>
+    <nav>
+      <ul>
+        <li><a href="../dashboard.html">Dashboard</a></li>
+        <li><a href="#" id="logout">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../dashboard.html">Dashboard</a> / <span id="bcSubject"></span> / <span id="bcLesson"></span></div>
+    <h1 id="pageTitle">Quiz</h1>
+    <div id="subtitle"></div>
+    <div id="content"></div>
+    <div class="actions">
+      <button class="btn" id="submitBtn">Enviar respostas</button>
+      <button class="btn btn-outline btn-small" id="retryBtn">Tentar novamente</button>
+      <a class="btn" id="backBtn" href="../dashboard.html">Voltar</a>
+    </div>
+    <div id="score" class="result"></div>
+  </main>
+
+  <script>
+    function unslugify(s){ return (s||'').replace(/-/g,' ').replace(/\b\w/g, c=>c.toUpperCase()); }
+    function getParams(){ const u=new URL(window.location.href); return { subject:(u.searchParams.get('subject')||'').toLowerCase(), lesson:(u.searchParams.get('lesson')||'').toLowerCase() }; }
+
+    const quizzes = {
+      'front-end': {
+        'html': [
+          { q: 'Qual elemento HTML representa um parágrafo?', options: ['<section>','<p>','<span>','<div>'], a: 1 },
+          { q: 'Onde ficam metadados e título do documento?', options: ['<footer>','<header>','<head>','<body>'], a: 2 },
+          { q: 'Qual atributo fornece texto alternativo para imagens?', options: ['title','alt','href','src'], a: 1 }
+        ],
+        'css': [
+          { q: 'Qual seletor tem maior especificidade?', options: ['.classe','#id','tag','*'], a: 1 },
+          { q: 'Qual tecnologia cria layouts bidimensionais complexos?', options: ['Flexbox','Grid','Floats','Tables'], a: 1 },
+          { q: 'Qual propriedade aplica transições?', options: ['transition','animation','transform','display'], a: 0 }
+        ],
+        'javascript': [
+          { q: 'Qual comando cria uma constante?', options: ['var','let','const','function'], a: 2 },
+          { q: 'Qual API manipula a árvore de elementos?', options: ['BOM','DOM','JSON','URL'], a: 1 },
+          { q: 'Qual método busca recursos via HTTP?', options: ['getElementById','setTimeout','fetch','alert'], a: 2 }
+        ],
+        'react': [
+          { q: 'O que são props?', options: ['Estado interno','Funções de ciclo de vida','Dados imutáveis passados ao componente','Styles de um componente'], a: 2 },
+          { q: 'Qual hook gerencia estado local?', options: ['useMemo','useState','useEffect','useRef'], a: 1 },
+          { q: 'Qual prática melhora performance?', options: ['Re-renderizar sempre','Chaves instáveis em listas','Memoização quando adequado','Evitar divisão de código'], a: 2 }
+        ],
+        'responsividade': [
+          { q: 'Media queries servem para…', options: ['Animações','Estilizar por condições de dispositivo','Resetar estilos','Importar fontes'], a: 1 },
+          { q: 'Unidade indicada para layouts fluidos:', options: ['px','rem/%','vh apenas','pt'], a: 1 },
+          { q: 'Imagens responsivas normalmente usam:', options: ['width fixa','max-width: 100%','position: fixed','float'], a: 1 }
+        ]
+      },
+      'back-end': {
+        'node-js': [
+          { q: 'Node.js é…', options: ['Framework', 'Runtime JavaScript', 'Banco de dados', 'Servidor HTTP pronto'], a: 1 },
+          { q: 'Modelo de I/O do Node.js:', options: ['Bloqueante', 'Orientado a eventos e não bloqueante', 'Somente síncrono', 'Somente multi-thread'], a: 1 },
+          { q: 'Gerenciador de pacotes padrão:', options: ['pip','npm','cargo','composer'], a: 1 }
+        ],
+        'express-js': [
+          { q: 'Express é usado para…', options: ['Construir UIs reativas','Criar APIs/servidores HTTP','Consultas SQL','Gerar relatórios'], a: 1 },
+          { q: 'Middleware em Express…', options: ['Intercepta e processa requisições','É um banco de dados','Apenas CSS','Ferramenta de build'], a: 0 },
+          { q: 'Validação de entrada ajuda em…', options: ['Performance apenas','Segurança e integridade','Somente logs','Nada'], a: 1 }
+        ],
+        'autenticacao': [
+          { q: 'JWT é…', options: ['Sessão com cookie','Token assinado com claims','Tipo de banco','Criptografia de disco'], a: 1 },
+          { q: 'Proteção de rotas envolve…', options: ['Permitir tudo','Checar credenciais/escopos','Bloquear GET','Remover TLS'], a: 1 },
+          { q: 'Boa prática de senhas:', options: ['Salvar em texto puro','Reusar em tudo','Hash + salt','Enviar por e-mail'], a: 2 }
+        ],
+        'banco-de-dados': [
+          { q: 'Evite SQL Injection com…', options: ['Concatenação','Consultas parametrizadas','Sem logs','Strings multilinha'], a: 1 },
+          { q: 'Transações garantem…', options: ['Disponibilidade','ACID','CSS bonito','JSON válido'], a: 1 },
+          { q: 'Índices…', options: ['Atrapalham toda leitura','Sempre bons','Aceleram consultas seletivas mas custam em escrita','Não existem'], a: 2 }
+        ]
+      },
+      'mobile': {
+        'flutter': [
+          { q: 'Flutter utiliza qual linguagem?', options: ['Java','Dart','Kotlin','Swift'], a: 1 },
+          { q: 'Hot Reload serve para…', options: ['Reiniciar aparelho','Atualizar UI rapidamente sem perder estado','Gerar APK','Executar testes'], a: 1 },
+          { q: 'Widget que provê estrutura básica de tela:', options: ['Container','Scaffold','Row','ListView'], a: 1 }
+        ],
+        'react-native': [
+          { q: 'React Native usa componentes…', options: ['Somente web','Nativos mapeados via bridge','Somente HTML','Somente Canvas'], a: 1 },
+          { q: 'Para navegação é comum usar…', options: ['React Router','React Navigation','Redux apenas','No navigation'], a: 1 },
+          { q: 'Lista performática recomendada:', options: ['map em ScrollView','FlatList','divs','table'], a: 1 }
+        ],
+        'kotlin-android': [
+          { q: 'Kotlin é a linguagem oficial do Android?', options: ['Não','Sim'], a: 1 },
+          { q: 'Biblioteca Jetpack para persistência local:', options: ['Volley','Room','OkHttp','Retrofit'], a: 1 },
+          { q: 'Padrão de arquitetura recomendado:', options: ['MVC no Activity','MVVM/Clean','Sem arquitetura','Global state'], a: 1 }
+        ],
+        'swift-ios': [
+          { q: 'Framework declarativo moderno para UI:', options: ['UIKit','AppKit','SwiftUI','Interface Builder'], a: 2 },
+          { q: 'Para networking em Swift moderno, use:', options: ['URLSession/async-await','jQuery AJAX','Sockets crus sempre','GCD apenas'], a: 0 },
+          { q: 'Ferramenta para distribuição beta:', options: ['CocoaPods','Homebrew','TestFlight','NPM'], a: 2 }
+        ]
+      },
+      'modelagem-de-banco-de-dados': {
+        'modelagem-relacional': [
+          { q: 'Chave primária…', options: ['Permite nulos','Identifica unicamente registros','É sempre composta','Não tem impacto'], a: 1 },
+          { q: 'Relacionamento N:N exige…', options: ['Coluna booleana','Tabela associativa','Trigger','Nada especial'], a: 1 },
+          { q: 'Integridade referencial…', options: ['Impede inconsistências entre tabelas','É opcional em todos os casos','É recurso do front-end','Substitui backup'], a: 0 }
+        ],
+        'diagramas': [
+          { q: 'Diagramas ER representam…', options: ['Fluxos de rede','Entidades/relacionamentos','Somente chaves primárias','Código executável'], a: 1 },
+          { q: 'Notação Crow’s Foot é usada para…', options: ['Indicar cardinalidades','Desenhar UI','Descrever estilos CSS','Montar logs'], a: 0 },
+          { q: 'Ferramentas para diagramas incluem…', options: ['dbdiagram.io','Helm','npm','curl'], a: 0 }
+        ],
+        'normalizacao': [
+          { q: 'Normalização visa…', options: ['Aumentar redundância','Eliminar anomalias','Quebrar ACID','Remover chaves'], a: 1 },
+          { q: '3FN remove…', options: ['Dependências transitivas','Chaves primárias','Cardinalidade','Todos índices'], a: 0 },
+          { q: 'Desnormalizar…', options: ['Sempre indicado','Nunca indicado','Pode ser útil em leitura intensa com cuidado','Substitui backups'], a: 2 }
+        ],
+        'indices-e-desempenho': [
+          { q: 'Índices compostos…', options: ['Não existem','Têm ordem relevante','São sempre piores','Substituem chaves'], a: 1 },
+          { q: 'Planos de execução servem para…', options: ['Analisar consultas','Desenhar UI','Gerar CSS','Enviar e-mails'], a: 0 },
+          { q: 'Cache pode…', options: ['Aumentar latência','Melhorar performance','Quebrar ACID','Criar CSS'], a: 1 }
+        ]
+      }
+    };
+
+    const { subject, lesson } = getParams();
+    const list = (quizzes[subject]||{})[lesson] || [];
+
+    const bcSubject = document.getElementById('bcSubject');
+    const bcLesson = document.getElementById('bcLesson');
+    const titleEl = document.getElementById('pageTitle');
+    const subtitleEl = document.getElementById('subtitle');
+    const contentEl = document.getElementById('content');
+    const submitBtn = document.getElementById('submitBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const scoreEl = document.getElementById('score');
+
+    bcSubject.textContent = unslugify(subject || 'Assunto');
+    bcLesson.textContent = unslugify(lesson || 'Lição');
+    titleEl.textContent = 'Quiz de ' + unslugify(lesson || 'Lição');
+    subtitleEl.textContent = 'Assunto: ' + unslugify(subject || 'Assunto');
+
+    function render(){
+      contentEl.innerHTML = '';
+      scoreEl.textContent = '';
+      list.forEach((q, qi) => {
+        const wrap = document.createElement('section');
+        wrap.className = 'quiz-card';
+        const h = document.createElement('h2');
+        h.textContent = (qi+1) + '. ' + q.q;
+        wrap.appendChild(h);
+        q.options.forEach((opt, oi) => {
+          const label = document.createElement('label');
+          label.className = 'option';
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'q'+qi;
+          input.value = oi;
+          const span = document.createElement('span');
+          span.textContent = opt;
+          label.appendChild(input);
+          label.appendChild(span);
+          wrap.appendChild(label);
+        });
+        const result = document.createElement('div');
+        result.className = 'result';
+        result.id = 'r'+qi;
+        wrap.appendChild(result);
+        contentEl.appendChild(wrap);
+      });
+    }
+
+    function grade(){
+      if(list.length === 0){ scoreEl.textContent = 'Não há perguntas cadastradas para esta lição.'; return; }
+      let correct = 0;
+      list.forEach((q, qi) => {
+        const selected = document.querySelector('input[name="q'+qi+'"]:checked');
+        const r = document.getElementById('r'+qi);
+        if(!selected){
+          r.textContent = 'Sem resposta.';
+          r.className = 'result bad';
+          return;
+        }
+        const ans = parseInt(selected.value,10);
+        if(ans === q.a){
+          r.textContent = 'Correto!';
+          r.className = 'result ok';
+          correct++;
+        } else {
+          r.textContent = 'Incorreto. Resposta certa: ' + q.options[q.a];
+          r.className = 'result bad';
+        }
+      });
+      scoreEl.textContent = 'Pontuação: ' + correct + ' / ' + list.length;
+    }
+
+    render();
+
+    function goBack(){
+      if(document.referrer && window.history.length > 1){
+        window.history.back();
+      } else {
+        window.location.href = '../dashboard.html';
+      }
+    }
+
+    submitBtn.addEventListener('click', grade);
+    retryBtn.addEventListener('click', function(){ render(); });
+
+    const logout = document.getElementById('logout');
+    if(logout){
+      logout.addEventListener('click', function(e){
+        e.preventDefault();
+        localStorage.removeItem('usuario');
+        window.location.href = '../login.html';
+      });
+    }
+    const backBtn = document.getElementById('backBtn');
+    if(backBtn){
+      backBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        goBack();
+      });
+    }
+  </script>
+</body>
+</html>

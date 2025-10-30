@@ -32,6 +32,7 @@ header {
     font-size: 17px;
     line-height: 1.6;
     background: linear-gradient(90deg, #a855f7, #6a5acd);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 30px;
@@ -89,6 +90,7 @@ nav a:hover {
 .hero-text h2 span {
   color: #a855f7;
   background: linear-gradient(90deg, #a855f7, #6a5acd);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -304,3 +306,85 @@ main {
     color: #a855f7;
   }
   
+  .lesson-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .btn-small {
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: #a855f7;
+    border: 1px solid #a855f7;
+    box-shadow: none;
+  }
+
+  .btn-outline:hover {
+    background: rgba(168, 85, 247, 0.15);
+    color: #fff;
+    border-color: #9f44d3;
+  }
+
+/* ======= MOBILE (<=600px) ======= */
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+  nav ul li {
+    display: inline-block;
+    margin-left: 12px;
+  }
+  nav a {
+    font-size: 14px;
+  }
+  main {
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  .welcome h2 {
+    font-size: 24px;
+  }
+  .materias h3 {
+    font-size: 20px;
+    margin-top: 24px;
+  }
+  .cards {
+    gap: 14px;
+  }
+  .card {
+    flex: 1 1 100%;
+    padding: 16px;
+  }
+  .card h4 {
+    font-size: 18px;
+  }
+  .card p {
+    font-size: 14px;
+  }
+  .lesson-actions {
+    gap: 8px;
+  }
+  .lesson-actions .btn,
+  .lesson-actions .btn-small,
+  .lesson-actions .btn-outline {
+    width: 100%;
+    text-align: center;
+  }
+  .breadcrumb,
+  .muted {
+    font-size: 12px;
+  }
+  /* Auth boxes spacing on small screens */
+  .auth-box { padding: 24px; }
+  .auth-form .btn { font-size: 16px; }
+}

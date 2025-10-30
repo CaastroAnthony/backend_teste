@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercícios</title>
+  <link rel="stylesheet" href="../styles/style.css" />
+  <style>
+    main { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .breadcrumb { color: #d1d1e0; margin-bottom: 20px; font-size: 14px; }
+    .breadcrumb a { color: #a855f7; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    h1 { font-size: 32px; color: #a855f7; margin-bottom: 10px; }
+    h2 { font-size: 22px; color: #fff; margin-top: 28px; margin-bottom: 8px; }
+    p, li { color: #e8e8ff; line-height: 1.8; font-size: 16px; }
+    .exercise { background: rgba(0,0,0,0.4); border-radius: 16px; padding: 22px; box-shadow: 0 0 20px rgba(168,85,247,0.35); margin-top: 18px; }
+    ul { padding-left: 18px; }
+    .actions { display:flex; gap:10px; margin-top:20px; }
+    .tag { display:inline-block; padding:2px 8px; border:1px solid #6a5acd; border-radius:999px; font-size:12px; color:#cfd1ff; margin-left:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="title"><h1>EstudoTech</h1></div>
+    <nav>
+      <ul>
+        <li><a href="../dashboard.html">Dashboard</a></li>
+        <li><a href="#" id="logout">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div class="breadcrumb"><a href="../dashboard.html">Dashboard</a> / <span id="bcSubject"></span> / <span id="bcLesson"></span></div>
+    <h1 id="pageTitle">Exercícios</h1>
+    <div id="subtitle"></div>
+    <div id="content"></div>
+    <div class="actions">
+      <a class="btn" id="backBtn" href="../dashboard.html">Voltar</a>
+    </div>
+  </main>
+  <script>
+    function unslugify(s){ return (s||'').replace(/-/g,' ').replace(/\b\w/g, c=>c.toUpperCase()); }
+    function getParams(){ const u=new URL(window.location.href); return { subject:(u.searchParams.get('subject')||'').toLowerCase(), lesson:(u.searchParams.get('lesson')||'').toLowerCase() }; }
+    const data = {
+      'front-end': {
+        'html': [
+          { t: 'Estrutura básica', steps: ['Crie um arquivo index.html com <!DOCTYPE html>.', 'Adicione <head> com <title> e <meta charset="UTF-8">.', 'No <body>, inclua um <h1> e um parágrafo.'] },
+          { t: 'Links e imagens', steps: ['Insira um link para https://developer.mozilla.org.', 'Adicione uma imagem com atributo alt descritivo.'] },
+          { t: 'Listas', steps: ['Crie uma lista ordenada com 3 itens.', 'Crie uma lista não ordenada com 3 itens.'] }
+        ],
+        'css': [
+          { t: 'Seletores', steps: ['Crie uma folha styles.css.', 'Selecione um título por classe e altere a cor.', 'Crie um :hover em um botão.'] },
+          { t: 'Flexbox', steps: ['Crie um container flex com 3 caixas.', 'Centralize vertical e horizontalmente.', 'Experimente gap e justify-content.'] },
+          { t: 'Responsividade', steps: ['Adicione uma media query para telas < 600px.', 'Reduza fontes e reorganize layout.'] }
+        ],
+        'javascript': [
+          { t: 'DOM básico', steps: ['Capture um botão com querySelector.', 'Ao clicar, altere o texto de um elemento.'] },
+          { t: 'Eventos', steps: ['Adicione um input e escute evento input.', 'Mostre o valor digitado em tempo real.'] },
+          { t: 'Fetch', steps: ['Faça uma requisição fetch a uma API pública.', 'Renderize os dados recebidos na página.'] }
+        ],
+        'react': [
+          { t: 'Componentes', steps: ['Crie um componente funcional Hello.', 'Receba props e mostre um nome.', 'Estilize com CSS Modules ou styled-components.'] },
+          { t: 'Estado', steps: ['Use useState para contar cliques.', 'Adicione um botão +1 e outro reset.'] },
+          { t: 'Efeitos', steps: ['Use useEffect para buscar dados na montagem.', 'Exiba indicador de carregamento.'] }
+        ],
+        'responsividade': [
+          { t: 'Grid fluido', steps: ['Monte um grid 2x2 que vira 1x4 em telas pequenas.', 'Garanta espaçamentos consistentes.'] },
+          { t: 'Imagens responsivas', steps: ['Use max-width:100% e height:auto.', 'Teste em dispositivos diferentes.'] }
+        ]
+      },
+      'back-end': {
+        'node-js': [
+          { t: 'Servidor HTTP', steps: ['Crie um servidor Node com http.createServer.', 'Responda “Hello API”.'] },
+          { t: 'Rotas', steps: ['Retorne conteúdos diferentes para /saude e /sobre.', 'Use status e headers adequados.'] }
+        ],
+        'express-js': [
+          { t: 'API REST', steps: ['Crie um app Express com rotas CRUD /items.', 'Valide corpo da requisição para POST/PUT.'] },
+          { t: 'Middleware de erros', steps: ['Adicione um middleware que captura exceções e retorna JSON.'] }
+        ],
+        'autenticacao': [
+          { t: 'Login', steps: ['Implemente um endpoint /login que retorna um token JWT.', 'Implemente verificação básica do token em rota protegida.'] },
+          { t: 'Permissões', steps: ['Adicione verificação de role (admin/user).', 'Proteja rota administrativa.'] }
+        ],
+        'banco-de-dados': [
+          { t: 'CRUD', steps: ['Conecte a um banco (SQLite/Postgres/Mongo).', 'Implemente CRUD de uma entidade simples.'] },
+          { t: 'Segurança', steps: ['Use queries parametrizadas.', 'Implemente limitação de taxa para endpoints críticos.'] }
+        ]
+      },
+      'mobile': {
+        'flutter': [
+          { t: 'Hello Flutter', steps: ['Instale Flutter SDK e Dart.', 'Crie um projeto com "flutter create app_mobile".', 'Execute no emulador/dispositivo com "flutter run".'] },
+          { t: 'Widgets básicos', steps: ['Crie uma tela com Scaffold/AppBar.', 'Adicione Column com Text e ElevatedButton.', 'Implemente setState para atualizar um contador.'] }
+        ],
+        'react-native': [
+          { t: 'Primeiro app (Expo)', steps: ['Instale Expo CLI.', 'Crie projeto com "npx create-expo-app".', 'Rode com "npx expo start" e abra no emulador/app Expo.'] },
+          { t: 'Lista e navegação', steps: ['Instale React Navigation.', 'Crie Stack com duas telas.', 'Use FlatList para renderizar itens e navegar ao detalhe.'] }
+        ],
+        'kotlin-android': [
+          { t: 'Projeto Android', steps: ['Abra Android Studio e crie projeto Empty Activity.', 'Adapte layout com ConstraintLayout.', 'Implemente ação de clique com Toast.'] },
+          { t: 'Persistência (Room)', steps: ['Adicione dependências Room.', 'Crie entidade/DAO/Database.', 'Salve e liste itens em uma RecyclerView.'] }
+        ],
+        'swift-ios': [
+          { t: 'SwiftUI básico', steps: ['Crie projeto iOS com SwiftUI.', 'Monte VStack com Text e Button.', 'Atualize estado com @State.'] },
+          { t: 'Networking', steps: ['Use URLSession para buscar JSON.', 'Decodifique com Codable.', 'Exiba dados em uma List reativa.'] }
+        ]
+      },
+      'modelagem-de-banco-de-dados': {
+        'modelagem-relacional': [
+          { t: 'Modelo conceitual', steps: ['Defina entidades e relacionamentos para um e-commerce.', 'Liste atributos e chaves.'] },
+          { t: 'Modelo lógico', steps: ['Transforme entidades em tabelas e defina chaves estrangeiras.'] }
+        ],
+        'diagramas': [
+          { t: 'ER', steps: ['Crie um diagrama ER do domínio anterior.', 'Anote cardinalidades e chaves.'] }
+        ],
+        'normalizacao': [
+          { t: 'Formas normais', steps: ['Dado um conjunto de tabelas, identifique violações de 1FN, 2FN, 3FN.', 'Proponha correções.'] }
+        ],
+        'indices-e-desempenho': [
+          { t: 'Índices', steps: ['Escolha colunas candidatas a índices.', 'Explique trade-offs de escrita vs leitura.'] }
+        ]
+      }
+    };
+    const { subject, lesson } = getParams();
+    const list = (data[subject]||{})[lesson] || [];
+    const bcSubject = document.getElementById('bcSubject');
+    const bcLesson = document.getElementById('bcLesson');
+    const titleEl = document.getElementById('pageTitle');
+    const subtitleEl = document.getElementById('subtitle');
+    const contentEl = document.getElementById('content');
+    
+    bcSubject.textContent = unslugify(subject || 'Assunto');
+    bcLesson.textContent = unslugify(lesson || 'Lição');
+    titleEl.textContent = 'Exercícios de ' + unslugify(lesson || 'Lição');
+    subtitleEl.textContent = 'Assunto: ' + unslugify(subject || 'Assunto');
+    if(list.length === 0){
+      const p = document.createElement('p');
+      p.textContent = 'Ainda não há exercícios cadastrados para esta lição.';
+      contentEl.appendChild(p);
+    } else {
+      list.forEach((ex, idx) => {
+        const wrap = document.createElement('section');
+        wrap.className = 'exercise';
+        const h = document.createElement('h2');
+        h.textContent = (idx+1) + '. ' + ex.t;
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'Prático';
+        h.appendChild(tag);
+        const ul = document.createElement('ul');
+        ex.steps.forEach(s => { const li=document.createElement('li'); li.textContent=s; ul.appendChild(li); });
+        wrap.appendChild(h);
+        wrap.appendChild(ul);
+        contentEl.appendChild(wrap);
+      });
+    }
+    function goBack(){
+      if(document.referrer && window.history.length > 1){
+        window.history.back();
+      } else {
+        window.location.href = '../dashboard.html';
+      }
+    }
+
+    const logout = document.getElementById('logout');
+    if(logout){
+      logout.addEventListener('click', function(e){
+        e.preventDefault();
+        localStorage.removeItem('usuario');
+        window.location.href = '../login.html';
+      });
+    }
+    const backBtn = document.getElementById('backBtn');
+    if(backBtn){
+      backBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        goBack();
+      });
+    }
+  </script>
+</body>
+</html>
